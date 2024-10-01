@@ -18,7 +18,6 @@
 #     this function terminates the program with error code 37
 # =======================================================
 dot:
-    ebreak
     addi sp, sp, -12
     sw s0, 0(sp)
     sw s1, 4(sp)
