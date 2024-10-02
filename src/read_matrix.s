@@ -26,13 +26,14 @@
 # ==============================================================================
 read_matrix:
     # Prologue
-    addi sp, sp, -24
+    addi sp, sp, -28
     sw ra, 0(sp)
     sw s0, 4(sp)
     sw s1, 8(sp)
     sw s2, 12(sp)
     sw s3, 16(sp)
     sw s4, 20(sp)
+    sw s5, 24(sp)
     # End prologue
     
     mv s0, a0 # pointer to the filename string
@@ -74,27 +75,24 @@ read_matrix:
     # allocate memory for the matrix
     jal malloc
     beq a0, x0, malloc_err
-    mv t1, a0 # pointer to matrix array
+    mv s5, a0 # pointer to matrix array
     
     #read the matrix
     mv a0, s3
-    mv a1, t1
+    mv a1, s5
     mv a2, s4
     
     jal fread
     bne a0, s4, fread_err
     
     #close the file
-    addi sp, sp, -4
-    sw a0, 0(sp)
-    
     mv a0, s3
     jal fclose
     bne a0, x0, fclose_err
+
     
-    lw a0, 0(sp)
-    addi sp, sp, 4
-    
+    mv a0, s5 # return the address of matrix
+
     # Epilogue
     lw ra, 0(sp)
     lw s0, 4(sp)
@@ -102,7 +100,8 @@ read_matrix:
     lw s2, 12(sp)
     lw s3, 16(sp)
     lw s4, 20(sp)
-    addi sp, sp, 24
+    lw s5, 24(sp)
+    addi sp, sp, 28
     # End Epilogue
 
     jr ra
