@@ -1,4 +1,3 @@
-ebreak
 .globl abs
 
 .text

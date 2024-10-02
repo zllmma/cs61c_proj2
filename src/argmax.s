@@ -15,7 +15,6 @@
 #     this function terminates the program with error code 36
 # =================================================================
 argmax:
-    ebreak
     addi sp, sp, -4
     sw s0, 0(sp)
     
