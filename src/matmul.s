@@ -73,9 +73,7 @@ inner_loop_start:
     sw t3, 12(sp)
     sw t4, 16(sp)
     sw a6, 20(sp)
-    
-    jal ra, dot
-    
+    jal dot
     lw t0, 0(sp)
     lw t1, 4(sp)
     lw t2, 8(sp)
@@ -91,14 +89,15 @@ inner_loop_start:
     
     addi t2, t2, 1
     addi t1, t1, 1
-    addi s3, s3, 1
+    addi s3, s3, 4
     j inner_loop_start
 
 inner_loop_end:
     li t1, 0
     mv s3, t4
     addi t0, t0, 1
-    add s0, s0, s2
+    slli t5, s2, 2
+    add s0, s0, t5
     j outer_loop_start
 
 
