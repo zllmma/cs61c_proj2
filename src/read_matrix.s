@@ -25,18 +25,101 @@
 #     this function terminates the program with error code 29
 # ==============================================================================
 read_matrix:
-
     # Prologue
-
-
-
-
-
-
-
-
-
+    addi sp, sp, -24
+    sw ra, 0(sp)
+    sw s0, 4(sp)
+    sw s1, 8(sp)
+    sw s2, 12(sp)
+    sw s3, 16(sp)
+    sw s4, 20(sp)
+    # End prologue
+    
+    mv s0, a0 # pointer to the filename string
+    mv s1, a1 # pointer to number of rows
+    mv s2, a2 # pointer to number of cols
+    
+    # open the file
+    li a1, 0
+    jal fopen
+    li t0, -1
+    mv s3, a0 # for reread
+    beq a0, t0, fopen_err
+    
+    # read the row number
+    mv a0, s3
+    mv a1, s1
+    li t0, 4
+    mv a2, t0
+    jal fread
+    li t0, 4
+    bne a0, t0, fread_err 
+    
+    # read the col number
+    mv a0, s3
+    mv a1, s2
+    li t0, 4
+    mv a2, t0
+    jal fread
+    li t0, 4
+    bne a0, t0, fread_err
+    
+    lw t0, 0(s1) # row
+    lw t1, 0(s2) # col
+    mul a0, t0, t1 # the total number of matrix
+    li t2, 4
+    mul a0, a0, t2 # the total *bytes* of matrix
+    mv s4, a0 
+    
+    # allocate memory for the matrix
+    jal malloc
+    beq a0, x0, malloc_err
+    mv t1, a0 # pointer to matrix array
+    
+    #read the matrix
+    mv a0, s3
+    mv a1, t1
+    mv a2, s4
+    
+    jal fread
+    bne a0, s4, fread_err
+    
+    #close the file
+    addi sp, sp, -4
+    sw a0, 0(sp)
+    
+    mv a0, s3
+    jal fclose
+    bne a0, x0, fclose_err
+    
+    lw a0, 0(sp)
+    addi sp, sp, 4
+    
     # Epilogue
-
+    lw ra, 0(sp)
+    lw s0, 4(sp)
+    lw s1, 8(sp)
+    lw s2, 12(sp)
+    lw s3, 16(sp)
+    lw s4, 20(sp)
+    addi sp, sp, 24
+    # End Epilogue
 
     jr ra
+    
+    
+malloc_err:
+    li a0, 26
+    j exit
+
+fopen_err:
+    li a0, 27
+    j exit
+    
+fclose_err:
+    li a0, 28
+    j exit
+    
+fread_err:
+    li a0, 29
+    j exit
