@@ -49,7 +49,6 @@ classify:
     lw s2, 12(a1) # pointer to filepath string of input
     lw s3, 16(a1) # pointer to filepath string of output file
     mv s10, a2    # silent mode
-    
     # Read pretrained m0
     li a0, 4
     jal malloc
@@ -71,7 +70,6 @@ classify:
     addi sp, sp, -8
     sw t1, 0(sp)
     sw t2, 4(sp)
-    ebreak
     jal read_matrix
     lw t1, 0(sp)
     lw t2, 4(sp)
@@ -79,6 +77,14 @@ classify:
     mv s0, a0 # pointer to m0 
     lw s4, 0(t1) # row number of m0
     lw s5, 0(t2) # col number of m0
+    mv a0, t1
+    addi sp, sp, -4
+    sw t2, 0(sp)
+    jal free
+    lw t2, 0(sp)
+    addi sp, sp, 4
+    mv a0, t2
+    jal free
     
     # Read pretrained m1
     li a0, 4
@@ -95,7 +101,7 @@ classify:
     beq a0, x0, malloc_err
     mv t2, a0 # pointer to col number
     
-    mv a0, s0
+    mv a0, s1
     mv a1, t1
     mv a2, t2
     addi sp, sp, -8
@@ -108,6 +114,14 @@ classify:
     mv s1, a0 # pointer to m1 
     lw s6, 0(t1) # row number of m1
     lw s7, 0(t2) # col number of m1
+    mv a0, t1
+    addi sp, sp, -4
+    sw t2, 0(sp)
+    jal free
+    lw t2, 0(sp)
+    addi sp, sp, 4
+    mv a0, t2
+    jal free
 
     # Read input matrix
     li a0, 4
@@ -124,7 +138,7 @@ classify:
     beq a0, x0, malloc_err
     mv t2, a0 # pointer to col number
     
-    mv a0, s0
+    mv a0, s2
     mv a1, t1
     mv a2, t2
     addi sp, sp, -8
@@ -137,6 +151,14 @@ classify:
     mv s2, a0 # pointer to input
     lw s8, 0(t1) # row number of input
     lw s9, 0(t2) # col number of input
+    mv a0, t1
+    addi sp, sp, -4
+    sw t2, 0(sp)
+    jal free
+    lw t2, 0(sp)
+    addi sp, sp, 4
+    mv a0, t2
+    jal free
    
     # Compute h = matmul(m0, input)
     li a0, 4
@@ -151,7 +173,13 @@ classify:
     mv a3, s2
     mv a4, s8
     mv a5, s9
-    jal matmul 
+    addi sp, sp, -4
+    sw a6, 0(sp)
+    jal matmul
+    mv a0, s0
+    jal free
+    lw a6, 0(sp)
+    addi sp, sp, 4
     mv s0, a6 # pointer to h
     mv s4, s4 # row number of h
     mv s5, s9 # col number of h
@@ -174,7 +202,13 @@ classify:
     mv a3, s0
     mv a4, s4
     mv a5, s5
+    addi sp, sp, -4
+    sw a6, 0(sp)
     jal matmul
+    mv a0, s1
+    jal free
+    lw a6, 0(sp)
+    addi sp, sp, 4
     mv s1, a6 # pointer to o
     mv s6, s6 # row number of o
     mv s7, s5 # col number of o
@@ -195,11 +229,11 @@ classify:
     
 print_argmax:
     # If enabled, print argmax(o) and newline
-    jal print_int
     mv t0, a0
-    li a0, '\n'
     addi sp, sp, -4
     sw t0, 0(sp)
+    jal print_int
+    li a0, '\n'
     jal print_char
     lw t0, 0(sp)
     addi sp, sp, 4
@@ -208,6 +242,17 @@ print_argmax:
     
 end:
     # =========
+    addi sp, sp, -4
+    sw a0, 0(sp)
+    mv a0, s0
+    jal free
+    mv a0, s1
+    jal free
+    mv a0, s2
+    jal free
+    lw a0, 0(sp)
+    addi sp, sp, 4
+    
     lw ra, 0(sp)
     lw s0, 4(sp)
     lw s1, 8(sp)
