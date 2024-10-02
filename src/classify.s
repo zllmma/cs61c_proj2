@@ -241,7 +241,7 @@ print_argmax:
     j end
     
 end:
-    # =========
+    
     addi sp, sp, -4
     sw a0, 0(sp)
     mv a0, s0
@@ -253,6 +253,7 @@ end:
     lw a0, 0(sp)
     addi sp, sp, 4
     
+    # =========
     lw ra, 0(sp)
     lw s0, 4(sp)
     lw s1, 8(sp)
